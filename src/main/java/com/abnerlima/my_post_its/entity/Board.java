@@ -16,7 +16,7 @@ public class Board {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "user")
+    @Column(name = "user_id")
     private UUID user;
 
     public Board() {

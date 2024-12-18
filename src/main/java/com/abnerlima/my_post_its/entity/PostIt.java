@@ -14,23 +14,25 @@ public class PostIt {
     @Column(name = "text")
     private String text;
 
-    @Column(name = "board_id")
+    @JoinColumn(name = "board_id")
     private Integer boardId;
 
-    @Column(name = "color_id")
-    private Integer colorId;
+    @ManyToOne
+    @JoinColumn(name = "color_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private PostItColor color;
 
-    @Column(name = "size_id")
-    private Integer sizeId;
+    @ManyToOne
+    @JoinColumn(name = "size_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private PostItSize size;
 
     public PostIt() {
     }
 
-    public PostIt(String text, Integer boardId, Integer colorId, Integer sizeId) {
+    public PostIt(String text, Integer boardId, PostItColor color, PostItSize size) {
         this.text = text;
         this.boardId = boardId;
-        this.colorId = colorId;
-        this.sizeId = sizeId;
+        this.color = color;
+        this.size = size;
     }
 
     public Integer getId() {
@@ -57,19 +59,19 @@ public class PostIt {
         this.boardId = boardId;
     }
 
-    public Integer getColorId() {
-        return colorId;
+    public PostItColor getColor() {
+        return color;
     }
 
-    public void setColorId(Integer colorId) {
-        this.colorId = colorId;
+    public void setColor(PostItColor color) {
+        this.color = color;
     }
 
-    public Integer getSizeId() {
-        return sizeId;
+    public PostItSize getSize() {
+        return size;
     }
 
-    public void setSizeId(Integer sizeId) {
-        this.sizeId = sizeId;
+    public void setSize(PostItSize size) {
+        this.size = size;
     }
 }

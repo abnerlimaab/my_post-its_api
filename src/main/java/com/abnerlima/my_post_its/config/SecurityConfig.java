@@ -1,10 +1,13 @@
 package com.abnerlima.my_post_its.config;
 
+import com.abnerlima.my_post_its.filter.JwtAuthenticationFilter;
+import com.abnerlima.my_post_its.service.TokenValidationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -12,17 +15,23 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
+    private final TokenValidationService tokenValidationService;
+
+    public SecurityConfig(TokenValidationService tokenValidationService) {
+        this.tokenValidationService = tokenValidationService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Aplica o CORS diretamente dentro do HttpSecurity
-        http.authorizeHttpRequests(authorize -> authorize
-                .anyRequest().permitAll()
-        );
+        http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(tokenValidationService),
+                        UsernamePasswordAuthenticationFilter.class);
 
-        // Desabilita o CSRF (caso não esteja utilizando autenticação baseada em CSRF)
         http.csrf(AbstractHttpConfigurer::disable);
 
-        // Aplicar as configurações de CORS
         http.cors(c -> c.configurationSource(corsConfigurationSource()));
 
         return http.build();
@@ -31,11 +40,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5173");  // Origem permitida
-        configuration.addAllowedMethod("*"); // Permitir todos os métodos HTTP
-        configuration.addAllowedHeader("*"); // Permitir todos os cabeçalhos
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
 
-        // Configuração global para todas as rotas
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
